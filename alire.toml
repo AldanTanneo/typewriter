@@ -1,0 +1,18 @@
+name = "typewriter"
+description = "Modern string handling library"
+version = "0.1.0-dev"
+
+authors = ["César SAGAERT"]
+maintainers = ["César SAGAERT <sagaert@adacore.com>"]
+maintainers-logins = ["AldanTanneo"]
+licenses = "MIT"
+website = ""
+tags = ["string", "text", "utf8", "unicode"]
+
+[build-switches]
+"*".ada_version = "Ada2022"
+
+[[actions]]
+type = "test"
+command = ["alr", "run"]
+directory = "./tests"
