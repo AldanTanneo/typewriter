@@ -9,6 +9,8 @@ is
 
    type Byte_Array is array (Index_Type range <>) of Byte;
 
+   subtype Continuation_Byte is Byte range 2#10_000000# .. 2#10_111111#;
+
    subtype Invalid_Range is Code_Point range 16#D800# .. 16#DFFF#;
    subtype Valid_Code_Point is Code_Point with
        Dynamic_Predicate => not (Valid_Code_Point in Invalid_Range);

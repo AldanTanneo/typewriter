@@ -105,7 +105,7 @@ is
       for I in 1 .. Cont loop
          if Arr'First + I in Arr'Range then
             B := Arr (Arr'First + I);
-            if (B and (not Mask_N)) = Prefix_N then
+            if B in Continuation_Byte then
                Read := Read + 1; --  only consume known valid bytes
                if Res > Shr (Code_Point'Last, 6) then
                   raise Decoding_Error

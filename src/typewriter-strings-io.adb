@@ -1,5 +1,5 @@
+with Ada.IO_Exceptions;
 with Interfaces.C_Streams;
-with IO_Exceptions;
 with GNAT.IO;
 
 package body Typewriter.Strings.IO is
@@ -10,9 +10,12 @@ package body Typewriter.Strings.IO is
 
       Written : size_t;
    begin
-      Written := fwrite (S.Ptr.Data'Address, 1, size_t (S.Ptr.Len), stdout);
-      if Count_Type (Written) /= S.Ptr.Len then
-         raise IO_Exceptions.Device_Error;
+      Written :=
+        fwrite
+          (S.Ptr.Data (S.Start .. S.Start + S.Len - 1)'Address, 1,
+           size_t (S.Len), stdout);
+      if Count_Type (Written) /= S.Len then
+         raise Ada.IO_Exceptions.Device_Error;
       end if;
    end Put;
 
@@ -22,9 +25,12 @@ package body Typewriter.Strings.IO is
 
       Written : size_t;
    begin
-      Written := fwrite (S.Ptr.Data'Address, 1, size_t (S.Ptr.Len), stdout);
-      if Count_Type (Written) /= S.Ptr.Len then
-         raise IO_Exceptions.Device_Error;
+      Written :=
+        fwrite
+          (S.Ptr.Data (S.Start .. S.Start + S.Len - 1)'Address, 1,
+           size_t (S.Len), stdout);
+      if Count_Type (Written) /= S.Len then
+         raise Ada.IO_Exceptions.Device_Error;
       end if;
       GNAT.IO.New_Line;
    end Put_Line;

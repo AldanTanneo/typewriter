@@ -1,21 +1,34 @@
 with Typewriter.Strings;
 with Typewriter.Strings.IO;
+
 procedure Tests is
    use Typewriter.Strings;
 
-   A : constant Slice := Lit ("emoji ✨✨");
-   B : constant Slice := Lit ("just a string");
-   C : Slice          := A.Clone;
+   A : constant Slice := "emoji ✨✨";
+   B : constant Slice := "just a string";
+   C : Slice          := A;
    D : Slice;
 begin
    IO.Put_Line (A);
    IO.Put_Line (B);
    IO.Put_Line (C);
-   C.Assign (B.Clone);
+   C := B;
    IO.Put_Line (C);
-   C.Assign (A);
+   C := A;
    IO.Put_Line (C);
-   D.Assign (C.Move);
+   D := C;
    IO.Put_Line (C);
    IO.Put_Line (D);
+
+   D := A (2, 6);
+
+   IO.Put ("""");
+   IO.Put (D);
+   IO.Put_Line ("""");
+
+   C := D.Clone;
+
+   IO.Put ("""");
+   IO.Put (C);
+   IO.Put_Line ("""");
 end Tests;

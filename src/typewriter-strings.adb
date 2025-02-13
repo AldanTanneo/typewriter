@@ -1,6 +1,26 @@
-with Ada.Text_IO;
-
 package body Typewriter.Strings is
+   function Subslice (S : Slice; Idx_Start, Idx_End : Index_Type) return Slice
+   is
+      use UTF8;
+   begin
+      if Idx_End > S.Len or else Idx_Start > S.Len then
+         raise Constraint_Error with "invalid index: out of slice bounds";
+      end if;
+      if Idx_Start > Idx_End then
+         raise Constraint_Error with "invalid slice bounds: start > end";
+      end if;
+      if S.Ptr.Data (S.Start + (Idx_Start - 1)) in UTF8.Continuation_Byte
+        or else
+        (Idx_End < S.Len
+         and then S.Ptr.Data (S.Start + Idx_End) in UTF8.Continuation_Byte)
+      then
+         raise Constraint_Error with "invalid index: not a character boundary";
+      end if;
+      return
+        (Ada.Finalization.Controlled with Start => S.Start + (Idx_Start - 1),
+         Len => Idx_End - Idx_Start + 1, Ptr => S.Ptr);
+   end Subslice;
+
    function Lit (S : Wide_Wide_String) return Slice is
       use UTF8;
 
@@ -23,7 +43,9 @@ package body Typewriter.Strings is
             end loop;
          end;
       end loop;
-      return (Ada.Finalization.Limited_Controlled with Ptr);
+      return
+        (Ada.Finalization.Controlled with
+         Start => 1, Len => Enc_Size, Ptr => Ptr);
    exception
       when Encoding_Error =>
          Free_String (Ptr); --  not yet controlled
@@ -31,51 +53,35 @@ package body Typewriter.Strings is
    end Lit;
 
    function Clone (S : Slice) return Slice is
-      Ptr : constant String_Data_Access := S.Ptr;
+      use UTF8;
+
+      New_Ptr : String_Data_Access := new String_Data (S.Len);
    begin
-      Ada.Text_IO.Put_Line
-        ("clone in: " & S.Ptr'Image & ", " & S.Ptr.Refc'Image);
-      Counter.Increment (Ptr.Refc);
-      Ada.Text_IO.Put_Line
-        ("clone out: " & S.Ptr'Image & ", " & S.Ptr.Refc'Image);
-      return (Ada.Finalization.Limited_Controlled with Ptr);
+      for I in 1 .. S.Len loop
+         New_Ptr.Data (I) := S.Ptr.Data (S.Start + I - 1);
+      end loop;
+      return
+        (Ada.Finalization.Controlled with
+         Start => 1, Len => S.Len, Ptr => New_Ptr);
    end Clone;
-
-   function Move (S : in out Slice) return Slice is
-      Ptr : constant String_Data_Access := S.Ptr;
-   begin
-      S.Ptr := Empty.Ptr;
-      Counter.Increment (S.Ptr.Refc);
-      return (Ada.Finalization.Limited_Controlled with Ptr);
-   end Move;
-
-   procedure Assign (S : in out Slice; Other : Slice) is
-   begin
-      if S.Ptr /= Other.Ptr then
-         Finalize (S);
-         S.Ptr := Other.Ptr;
-         Counter.Increment (S.Ptr.Refc);
-      end if;
-   end Assign;
 
    overriding procedure Initialize (S : in out Slice) is
    begin
-      Ada.Text_IO.Put_Line ("init in: " & S.Ptr'Image);
       if S.Ptr = null then
          S.Ptr := Empty.Ptr;
          Counter.Increment (S.Ptr.Refc);
       end if;
-      Ada.Text_IO.Put_Line
-        ("init out: " & S.Ptr'Image & ", " & S.Ptr.Refc'Image);
    end Initialize;
+
+   overriding procedure Adjust (S : in out Slice) is
+   begin
+      Counter.Increment (S.Ptr.Refc);
+   end Adjust;
 
    overriding procedure Finalize (S : in out Slice) is
    begin
-      Ada.Text_IO.Put_Line
-        ("final in: " & S.Ptr'Image & ", " & S.Ptr.Refc'Image);
       if S.Ptr /= null and then Counter.Decrement (S.Ptr.Refc) then
          Free_String (S.Ptr);
       end if;
-      Ada.Text_IO.Put_Line ("final out: " & S.Ptr'Image);
    end Finalize;
 end Typewriter.Strings;
