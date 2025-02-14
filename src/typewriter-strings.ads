@@ -12,7 +12,7 @@ package Typewriter.Strings is
    subtype Byte_Array is UTF8.Byte_Array;
 
    type Slice is tagged private with
-     Constant_Indexing => Subslice, String_Literal => Lit;
+     Constant_Indexing => Subslice, String_Literal => Literal;
    --  reference counted utf-8 string slice
 
    Empty : constant Slice;
@@ -21,7 +21,7 @@ package Typewriter.Strings is
    function Subslice (S : Slice; Idx_Start, Idx_End : Index_Type) return Slice;
    --  return a subslice of the given slice
 
-   function Lit (S : Wide_Wide_String) return Slice;
+   function Literal (S : Wide_Wide_String) return Slice;
    --  create a slice out of a Wide_Wide_String (to use with a string literal)
 
    function Length (S : Slice) return UTF8.Count_Type with
@@ -51,6 +51,7 @@ private
       Ptr   : String_Data_Access := null;
    end record with
      Type_Invariant => Ptr /= null;
+     -- to be enforced after initialization
 
    overriding procedure Initialize (S : in out Slice) with
      Inline;

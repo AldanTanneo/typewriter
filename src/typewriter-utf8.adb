@@ -42,34 +42,37 @@ is
 
    function Encoding_Length (C : Code_Point) return Encoding_Size is
    begin
-      return
-        (case C is when Range_1 => 1, when Range_2 => 2, when Range_3 => 3,
-           when Range_4 => 4);
+      return (case C is
+        when Range_1 => 1,
+        when Range_2 => 2,
+        when Range_3 => 3,
+        when Range_4 => 4
+      );
    end Encoding_Length;
 
-   function Encode (C : Code_Point) return Encoding is
+   function Encode (C : Valid_Code_Point) return Encoding is
    begin
-      if C in Invalid_Range then
-         raise Encoding_Error with "code point in invalid unicode range";
-      end if;
-
       case C is
          when Range_1 =>
             return [Byte (C)];
          when Range_2 =>
-            return
-              [Prefix_2 or Byte (Shr (C, 6)), Prefix_N or Byte (C and Mask_N)];
+            return [
+              Prefix_2 or Byte (Shr (C, 6)),
+              Prefix_N or Byte (C and Mask_N)
+            ];
          when Range_3 =>
-            return
-              [Prefix_3 or Byte (Shr (C, 12)),
+            return [
+              Prefix_3 or Byte (Shr (C, 12)),
               Prefix_N or Byte (Shr (C, 6) and Mask_N),
-              Prefix_N or Byte (C and Mask_N)];
+              Prefix_N or Byte (C and Mask_N)
+            ];
          when Range_4 =>
-            return
-              [Prefix_4 or Byte (Shr (C, 18)),
+            return [
+              Prefix_4 or Byte (Shr (C, 18)),
               Prefix_N or Byte (Shr (C, 12) and Mask_N),
               Prefix_N or Byte (Shr (C, 6) and Mask_N),
-              Prefix_N or Byte (C and Mask_N)];
+              Prefix_N or Byte (C and Mask_N)
+            ];
       end case;
    end Encode;
 

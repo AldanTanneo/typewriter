@@ -10,9 +10,8 @@ package body Typewriter.Strings is
          raise Constraint_Error with "invalid slice bounds: start > end";
       end if;
       if S.Ptr.Data (S.Start + (Idx_Start - 1)) in UTF8.Continuation_Byte
-        or else
-        (Idx_End < S.Len
-         and then S.Ptr.Data (S.Start + Idx_End) in UTF8.Continuation_Byte)
+        or else (Idx_End < S.Len and then
+                 S.Ptr.Data (S.Start + Idx_End) in UTF8.Continuation_Byte)
       then
          raise Constraint_Error with "invalid index: not a character boundary";
       end if;
@@ -21,7 +20,7 @@ package body Typewriter.Strings is
          Len => Idx_End - Idx_Start + 1, Ptr => S.Ptr);
    end Subslice;
 
-   function Lit (S : Wide_Wide_String) return Slice is
+   function Literal (S : Wide_Wide_String) return Slice is
       use UTF8;
 
       Enc_Size : Count_Type := 0;
@@ -50,12 +49,12 @@ package body Typewriter.Strings is
       when Encoding_Error =>
          Free_String (Ptr); --  not yet controlled
          raise;
-   end Lit;
+   end Literal;
 
    function Clone (S : Slice) return Slice is
       use UTF8;
 
-      New_Ptr : String_Data_Access := new String_Data (S.Len);
+      New_Ptr : constant String_Data_Access := new String_Data (S.Len);
    begin
       for I in 1 .. S.Len loop
          New_Ptr.Data (I) := S.Ptr.Data (S.Start + I - 1);

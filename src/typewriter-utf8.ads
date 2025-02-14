@@ -18,7 +18,7 @@ is
    Replacement_Character : constant Code_Point := 16#FFFD#;
 
    function To_Code_Point (WWC : Wide_Wide_Character) return Code_Point is
-     (Code_Point (Wide_Wide_Character'Pos (WWC)));
+     (Code_Point (Wide_Wide_Character'Pos (WWC))) with Inline_Always;
 
    type Encoding_Size is range 1 .. 4;
    type Encoding is array (Encoding_Size range <>) of Byte with
@@ -26,7 +26,7 @@ is
 
    function Encoding_Length (C : Code_Point) return Encoding_Size;
 
-   function Encode (C : Code_Point) return Encoding;
+   function Encode (C : Valid_Code_Point) return Encoding;
 
    function Decode (Arr : Byte_Array; Read : out Count_Type) return Code_Point;
 
