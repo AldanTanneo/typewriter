@@ -9,9 +9,9 @@ is
    function Shift_Left (C : U32; Amount : Natural) return U32 with
      Import, Convention => Intrinsic, Inline_Always;
    function Shr (C : Code_Point; Amount : Natural) return Code_Point is
-     (Code_Point (Shift_Right (U32 (C), Amount)));
+     (Code_Point (Shift_Right (U32 (C), Amount))) with Inline_Always;
    function Shl (C : Code_Point; Amount : Natural) return Code_Point is
-     (Code_Point (Shift_Left (U32 (C), Amount)));
+     (Code_Point (Shift_Left (U32 (C), Amount))) with Inline_Always;
 
    subtype Range_1 is Code_Point range 0 .. 16#7F#;
    --  range for 1 byte encoding
