@@ -2,11 +2,9 @@ with Ada.Finalization;
 with Ada.Unchecked_Deallocation;
 with System.Atomic_Counters;
 
-with Typewriter.UTF8;
+with Typewriter.UTF8; use Typewriter;
 
 package Typewriter.Strings is
-   package UTF8 renames Typewriter.UTF8;
-
    subtype Index_Type is UTF8.Index_Type;
    subtype Count_Type is UTF8.Count_Type;
    subtype Byte_Array is UTF8.Byte_Array;
