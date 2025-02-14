@@ -64,6 +64,26 @@ package body Typewriter.Strings is
          Start => 1, Len => S.Len, Ptr => New_Ptr);
    end Clone;
 
+   overriding function "=" (A, B : Slice) return Boolean is
+      use UTF8;
+   begin
+      if A.Len /= B.Len then
+         return False;
+      end if;
+
+      if A.Start = B.Start and then A.Ptr = B.Ptr then
+         return True;
+      end if;
+
+      for I in 1 .. A.Len loop
+         if A.Ptr.Data (A.Start + I - 1) /= B.Ptr.Data (B.Start + I - 1) then
+            return False;
+         end if;
+      end loop;
+
+      return True;
+   end "=";
+
    overriding procedure Initialize (S : in out Slice) is
    begin
       if S.Ptr = null then

@@ -30,7 +30,9 @@ package Typewriter.Strings is
 
    function Clone (S : Slice) return Slice with
      Inline;
-     --  duplicate the slice, allocating a new buffer
+   --  duplicate the slice, allocating a new buffer
+
+   overriding function "=" (A, B : Slice) return Boolean;
 
 private
    package Counter renames System.Atomic_Counters;
@@ -53,12 +55,9 @@ private
      Type_Invariant => Ptr /= null;
      -- to be enforced after initialization
 
-   overriding procedure Initialize (S : in out Slice) with
-     Inline;
-   overriding procedure Adjust (S : in out Slice) with
-     Inline;
-   overriding procedure Finalize (S : in out Slice) with
-     Inline;
+   overriding procedure Initialize (S : in out Slice) with Inline;
+   overriding procedure Adjust     (S : in out Slice) with Inline;
+   overriding procedure Finalize   (S : in out Slice) with Inline;
 
    function Length (S : Slice) return Count_Type is (S.Len);
 
