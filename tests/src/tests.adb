@@ -22,6 +22,12 @@ begin
 
    D := A (2, 6);
 
+   C := D (1, 0);
+
+   IO.Put ("""");
+   IO.Put (C);
+   IO.Put_Line ("""");
+
    IO.Put ("""");
    IO.Put (D);
    IO.Put_Line ("""");

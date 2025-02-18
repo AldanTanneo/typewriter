@@ -16,7 +16,9 @@ package Typewriter.Strings is
    Empty : constant Slice;
    --  empty slice
 
-   function Subslice (S : Slice; Idx_Start, Idx_End : Index_Type) return Slice;
+   function Subslice (S : Slice;
+                      Idx_Start : Index_Type;
+                      Idx_End : Count_Type) return Slice;
    --  return a subslice of the given slice
 
    function Literal (S : Wide_Wide_String) return Slice;
@@ -46,9 +48,9 @@ private
      (String_Data, String_Data_Access);
 
    type Slice is new Ada.Finalization.Controlled with record
+      Ptr   : String_Data_Access := null;
       Start : Index_Type         := 1;
       Len   : Count_Type         := 0;
-      Ptr   : String_Data_Access := null;
    end record with
      Type_Invariant => Ptr /= null;
      -- to be enforced after initialization

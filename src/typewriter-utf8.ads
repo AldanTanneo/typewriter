@@ -1,7 +1,7 @@
 package Typewriter.UTF8 with
   Pure
 is
-   type Byte is mod 256;
+   subtype ASCII is Byte range 0 .. 127;
    type Code_Point is mod 16#11_0000#;
 
    type Count_Type is new Natural;

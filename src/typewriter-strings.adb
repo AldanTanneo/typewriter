@@ -1,10 +1,15 @@
 package body Typewriter.Strings is
-   function Subslice (S : Slice; Idx_Start, Idx_End : Index_Type) return Slice
+   function Subslice (S : Slice;
+                      Idx_Start : Index_Type;
+                      Idx_End : Count_Type) return Slice
    is
       use UTF8;
    begin
       if Idx_End > S.Len or else Idx_Start > S.Len then
          raise Constraint_Error with "invalid index: out of slice bounds";
+      end if;
+      if Idx_Start - 1 = Idx_End then
+         return Empty;
       end if;
       if Idx_Start > Idx_End then
          raise Constraint_Error with "invalid slice bounds: start > end";
