@@ -1,4 +1,6 @@
-package Typewriter.Strings.IO is
+package Typewriter.Strings.IO
+   with Preelaborate
+is
 
    procedure Put (S : Slice);
 

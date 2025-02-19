@@ -4,7 +4,9 @@ with System.Atomic_Counters;
 
 with Typewriter.UTF8; use Typewriter;
 
-package Typewriter.Strings is
+package Typewriter.Strings
+   with Preelaborate
+is
    subtype Index_Type is UTF8.Index_Type;
    subtype Count_Type is UTF8.Count_Type;
    subtype Byte_Array is UTF8.Byte_Array;
@@ -51,9 +53,7 @@ private
       Ptr   : String_Data_Access := null;
       Start : Index_Type         := 1;
       Len   : Count_Type         := 0;
-   end record with
-     Type_Invariant => Ptr /= null;
-     -- to be enforced after initialization
+   end record;
 
    overriding procedure Initialize (S : in out Slice) with Inline;
    overriding procedure Adjust     (S : in out Slice) with Inline;
@@ -63,6 +63,6 @@ private
 
    Empty : constant Slice :=
      (Ada.Finalization.Controlled with
-      Start => 1, Len => 0, Ptr => new String_Data);
+      Start => 1, Len => 0, Ptr => null);
 
 end Typewriter.Strings;

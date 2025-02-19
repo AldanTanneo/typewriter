@@ -36,6 +36,10 @@ package body Typewriter.Strings is
          Enc_Size :=
            Enc_Size + Count_Type (Encoding_Length (To_Code_Point (WWC)));
       end loop;
+      if Enc_Size = 0 then
+         return Empty;
+      end if;
+
       Ptr := new String_Data (Enc_Size);
       for WWC of S loop
          declare
@@ -59,8 +63,13 @@ package body Typewriter.Strings is
    function Clone (S : Slice) return Slice is
       use UTF8;
 
-      New_Ptr : constant String_Data_Access := new String_Data (S.Len);
+      New_Ptr : String_Data_Access;
    begin
+      if S.Len = 0 then
+         return Empty;
+      end if;
+
+      New_Ptr := new String_Data (S.Len);
       for I in 1 .. S.Len loop
          New_Ptr.Data (I) := S.Ptr.Data (S.Start + I - 1);
       end loop;
@@ -91,15 +100,14 @@ package body Typewriter.Strings is
 
    overriding procedure Initialize (S : in out Slice) is
    begin
-      if S.Ptr = null then
-         S.Ptr := Empty.Ptr;
-         Counter.Increment (S.Ptr.Refc);
-      end if;
+      null;
    end Initialize;
 
    overriding procedure Adjust (S : in out Slice) is
    begin
-      Counter.Increment (S.Ptr.Refc);
+      if S.Ptr /= null then
+         Counter.Increment (S.Ptr.Refc);
+      end if;
    end Adjust;
 
    overriding procedure Finalize (S : in out Slice) is
