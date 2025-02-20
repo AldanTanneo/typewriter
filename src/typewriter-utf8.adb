@@ -52,28 +52,27 @@ is
 
    function Encode (C : Valid_Code_Point) return Encoding is
    begin
-      case C is
-         when Range_1 =>
-            return [Byte (C)];
-         when Range_2 =>
-            return [
-              Prefix_2 or Byte (Shr (C, 6)),
-              Prefix_N or Byte (C and Mask_N)
-            ];
-         when Range_3 =>
-            return [
-              Prefix_3 or Byte (Shr (C, 12)),
-              Prefix_N or Byte (Shr (C, 6) and Mask_N),
-              Prefix_N or Byte (C and Mask_N)
-            ];
-         when Range_4 =>
-            return [
-              Prefix_4 or Byte (Shr (C, 18)),
-              Prefix_N or Byte (Shr (C, 12) and Mask_N),
-              Prefix_N or Byte (Shr (C, 6) and Mask_N),
-              Prefix_N or Byte (C and Mask_N)
-            ];
-      end case;
+      if C in Range_1 then
+         return [Byte (C)];
+      elsif C in Range_2 then
+         return [
+            Prefix_2 or Byte (Shr (C, 6)),
+            Prefix_N or Byte (C and Mask_N)
+         ];
+      elsif C in Range_3 then
+         return [
+            Prefix_3 or Byte (Shr (C, 12)),
+            Prefix_N or Byte (Shr (C, 6) and Mask_N),
+            Prefix_N or Byte (C and Mask_N)
+         ];
+      else --  C in Range_4
+         return [
+            Prefix_4 or Byte (Shr (C, 18)),
+            Prefix_N or Byte (Shr (C, 12) and Mask_N),
+            Prefix_N or Byte (Shr (C, 6) and Mask_N),
+            Prefix_N or Byte (C and Mask_N)
+         ];
+      end if;
    end Encode;
 
    function Checked_Decode
