@@ -12,7 +12,5 @@ tags = ["string", "text", "utf8", "unicode"]
 [build-switches]
 "*".ada_version = "Ada2022"
 
-[[actions]]
-type = "test"
-command = ["alr", "run"]
-directory = "./tests"
+[test]
+runner = "alire"

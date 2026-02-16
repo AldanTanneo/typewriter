@@ -1,17 +1,17 @@
-package body Typewriter.UTF8 with
-  Pure
+package body Typewriter.UTF8
+  with Pure
 is
-   type U32 is mod 2**32;
-   for U32'Size use 32;
+   use type Byte;
 
-   function Shift_Right (C : U32; Amount : Natural) return U32 with
-     Import, Convention => Intrinsic, Inline_Always;
-   function Shift_Left (C : U32; Amount : Natural) return U32 with
-     Import, Convention => Intrinsic, Inline_Always;
-   function Shr (C : Code_Point; Amount : Natural) return Code_Point is
-     (Code_Point (Shift_Right (U32 (C), Amount))) with Inline_Always;
-   function Shl (C : Code_Point; Amount : Natural) return Code_Point is
-     (Code_Point (Shift_Left (U32 (C), Amount))) with Inline_Always;
+   subtype U32 is Interfaces.Unsigned_32;
+   use type U32;
+
+   function Shr (C : Code_Point; Amount : Natural) return Code_Point
+   is (Code_Point (Interfaces.Shift_Right (U32 (C), Amount)))
+   with Inline_Always;
+   function Shl (C : Code_Point; Amount : Natural) return Code_Point
+   is (Code_Point (Interfaces.Shift_Left (U32 (C), Amount)))
+   with Inline_Always;
 
    subtype Range_1 is Code_Point range 0 .. 16#7F#;
    --  range for 1 byte encoding
@@ -40,46 +40,43 @@ is
    Mask_4 : constant := 2#00000_111#;
    --  mask for 4 byte decoding
 
-   function Encoding_Length (C : Code_Point) return Encoding_Size is
-   begin
-      return (case C is
-        when Range_1 => 1,
-        when Range_2 => 2,
-        when Range_3 => 3,
-        when Range_4 => 4
-      );
-   end Encoding_Length;
+   function Encoding_Length (C : Code_Point) return Encoding_Size
+   is (case C is
+         when Range_1 => 1,
+         when Range_2 => 2,
+         when Range_3 => 3,
+         when Range_4 => 4);
 
-   function Encode (C : Valid_Code_Point) return Encoding is
-   begin
-      if C in Range_1 then
-         return [Byte (C)];
-      elsif C in Range_2 then
-         return [
-            Prefix_2 or Byte (Shr (C, 6)),
-            Prefix_N or Byte (C and Mask_N)
-         ];
-      elsif C in Range_3 then
-         return [
-            Prefix_3 or Byte (Shr (C, 12)),
-            Prefix_N or Byte (Shr (C, 6) and Mask_N),
-            Prefix_N or Byte (C and Mask_N)
-         ];
-      else --  C in Range_4
-         return [
-            Prefix_4 or Byte (Shr (C, 18)),
-            Prefix_N or Byte (Shr (C, 12) and Mask_N),
-            Prefix_N or Byte (Shr (C, 6) and Mask_N),
-            Prefix_N or Byte (C and Mask_N)
-         ];
-      end if;
-   end Encode;
+
+   --!format off
+   function Encode (C : Valid_Code_Point) return Encoding
+   is (case Code_Point (C) is
+      when Range_1 => [
+         Byte (C)
+      ],
+      when Range_2 => [
+         Prefix_2 or Byte (Shr (C, 6)),
+         Prefix_N or Byte (C and Mask_N)
+      ],
+      when Range_3 => [
+         Prefix_3 or Byte (Shr (C, 12)),
+         Prefix_N or Byte (Shr (C, 6) and Mask_N),
+         Prefix_N or Byte (C and Mask_N)
+      ],
+      when Range_4 => [
+         Prefix_4 or Byte (Shr (C, 18)),
+         Prefix_N or Byte (Shr (C, 12) and Mask_N),
+         Prefix_N or Byte (Shr (C, 6) and Mask_N),
+         Prefix_N or Byte (C and Mask_N)
+      ]
+   );
+   --!format on
 
    function Checked_Decode
-     (Arr : Byte_Array; Read : out Count_Type) return Valid_Code_Point
+     (Arr : Byte_Array; Read : out Natural) return Valid_Code_Point
    is
       Res  : Code_Point := 0;
-      Cont : Count_Type := 0;
+      Cont : Natural := 0;
       B    : Byte;
    begin
       if Arr'Length = 0 then
@@ -88,18 +85,22 @@ is
 
       B := Arr (Arr'First);
       case B is
-         when 0 .. 127 =>
+         when 0 .. 127                         =>
             Res := Code_Point (B);
+
          when Prefix_2 .. (Prefix_2 or Mask_2) =>
             Cont := 1;
-            Res  := Code_Point (B and Mask_2);
+            Res := Code_Point (B and Mask_2);
+
          when Prefix_3 .. (Prefix_3 or Mask_3) =>
             Cont := 2;
-            Res  := Code_Point (B and Mask_3);
+            Res := Code_Point (B and Mask_3);
+
          when Prefix_4 .. (Prefix_4 or Mask_4) =>
             Cont := 3;
-            Res  := Code_Point (B and Mask_4);
-         when others =>
+            Res := Code_Point (B and Mask_4);
+
+         when others                           =>
             raise Decoding_Error with "invalid first byte";
       end case;
       Read := 1;
@@ -129,8 +130,7 @@ is
       end if;
    end Checked_Decode;
 
-   function Decode (Arr : Byte_Array; Read : out Count_Type) return Code_Point
-   is
+   function Decode (Arr : Byte_Array; Read : out Natural) return Code_Point is
       Res : Code_Point;
    begin
       Res := Checked_Decode (Arr, Read);

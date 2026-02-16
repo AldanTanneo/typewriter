@@ -1,9 +1,9 @@
 package Typewriter.Strings.IO
-   with Preelaborate
+  with Preelaborate
 is
 
-   procedure Put (S : Slice);
+   procedure Put (S : Str);
 
-   procedure Put_Line (S : Slice);
+   procedure Put_Line (S : Str);
 
 end Typewriter.Strings.IO;

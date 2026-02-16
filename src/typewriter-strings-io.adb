@@ -1,43 +1,25 @@
 with Ada.IO_Exceptions;
-with Interfaces.C_Streams;
-with GNAT.IO;
+with Interfaces.C_Streams; use Interfaces.C_Streams;
 
 package body Typewriter.Strings.IO is
+   use type size_t;
 
-   procedure Put (S : Slice) is
-      use Interfaces.C_Streams;
-      use UTF8;
-
+   procedure Put (S : Str) is
       Written : size_t;
    begin
-      if S.Ptr = null then
-         return;
-      end if;
-      Written :=
-        fwrite
-          (S.Ptr.Data (S.Start .. S.Start + S.Len - 1)'Address, 1,
-           size_t (S.Len), stdout);
-      if Count_Type (Written) /= S.Len then
+      Written := fwrite (S.Bytes'Address, 1, size_t (S.Length), stdout);
+      if Written /= size_t (S.Length) then
          raise Ada.IO_Exceptions.Device_Error;
       end if;
    end Put;
 
-   procedure Put_Line (S : Slice) is
-      use Interfaces.C_Streams;
-      use UTF8;
-
-      Written : size_t;
+   procedure Put_Line (S : Str) is
+      Newline : constant int := 16#0A#;
    begin
-      if S.Ptr /= null then
-         Written :=
-         fwrite
-            (S.Ptr.Data (S.Start .. S.Start + S.Len - 1)'Address, 1,
-            size_t (S.Len), stdout);
-         if Count_Type (Written) /= S.Len then
-            raise Ada.IO_Exceptions.Device_Error;
-         end if;
+      Put (S);
+      if fputc (Newline, stdout) = EOF then
+         raise Ada.IO_Exceptions.Device_Error;
       end if;
-      GNAT.IO.New_Line;
    end Put_Line;
 
 end Typewriter.Strings.IO;

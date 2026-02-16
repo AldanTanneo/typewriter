@@ -11,6 +11,9 @@ tags = []
 
 executables = ["tests"]
 
+[build-switches]
+"*".ada_version = "Ada2022"
+
 [[depends-on]]
 typewriter = "*"
 
